@@ -1,4 +1,4 @@
-from chessCore import *
+from chess_core import *
 import pygame
 from pygame.locals import *
 import sys

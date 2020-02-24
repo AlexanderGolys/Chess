@@ -117,7 +117,7 @@ class MainWindow(Window):
     def what_square_clicked(self, coords):
         x = (coords[0] - self.margin_x)//self.square_len
         y = (coords[1] - self.margin_y)//self.square_len
-        if 0 < x < 8 and 0 < y < 8:
+        if 0 <= x < 8 and 0 <= y < 8:
             return int(x), int(y)
         return None
 
@@ -149,6 +149,40 @@ class MainWindow(Window):
 
 
 class LearnWindow(MainWindow):
+    class TopBar:
+        def __init__(self, learn_window):
+            self.learn_win = learn_window
+            self.back_button = BackButton((50, 50))
+            self.prev_move_button = PrevMoveButton((150, 50))
+            self.save_button = SaveButton((250, 50))
+            self.delete_button = DeleteButton((350, 50))
+
+        def draw(self):
+            self.learn_win.DISPLAYSURF.blit(self.back_button.img, self.back_button.coords)
+            self.learn_win.DISPLAYSURF.blit(self.prev_move_button.img, self.prev_move_button.coords)
+            self.learn_win.DISPLAYSURF.blit(self.save_button.img, self.save_button.coords)
+            self.learn_win.DISPLAYSURF.blit(self.delete_button.img, self.delete_button.coords)
+
+    class MoveList:
+        def __init__(self, learn_window):
+            self.learn_win = learn_window
+            self.margin_top = 50
+            self.margin_right = 50
+            self.margin_left = 50
+            self.bar_height = 20
+            self.bar_width = self.learn_win.width//2 - self.margin_left - self.margin_right
+            self.x_center = 3*self.learn_win.width//4
+
+        def draw(self, _list):
+            for i, node in enumerate(_list):    # node - id
+                print(i, _list[node])
+                font_obj = pygame.font.Font('freesansbold.ttf', 30)
+                stack_surface = font_obj.render(str(node), True,
+                                                Colors.to_rgba_full_opacity(Colors.white), Colors.make_darker)
+                stack_rect = stack_surface.get_rect()
+                stack_rect.center = (self.x_center, self.margin_top + i*self.bar_height)
+                self.learn_win.DISPLAYSURF.blit(stack_surface, stack_rect)
+
     def __init__(self, surface):
         super().__init__(surface)
         self.bg_color = Colors.chess_com_bg_color
@@ -171,6 +205,8 @@ class LearnWindow(MainWindow):
         self.wN_img = self.resize_piece(self.wN_img)
         self.wK_img = self.resize_piece(self.wK_img)
         self.wQ_img = self.resize_piece(self.wQ_img)
+        self.top_bar = self.TopBar(self)
+        self.move_list = self.MoveList(self)
 
     def resize_piece(self, img):
         return pygame.transform.scale(img, (self.square_len, self.square_len))
@@ -187,7 +223,7 @@ class LearnWindow(MainWindow):
     def what_square_clicked(self, coords):
         x = (coords[0] - self.board_margin_left)//self.square_len
         y = (coords[1] - self.board_margin_top)//self.square_len
-        if 0 < x < 8 and 0 < y < 8:
+        if 0 <= x < 8 and 0 <= y < 8:
             return int(x), int(y)
         return None
 

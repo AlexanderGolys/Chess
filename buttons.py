@@ -22,6 +22,8 @@ class Colors:
     light_bg_1 = 0xCACD74
     light_bg_2 = 0xABC291
 
+    make_darker = (0, 0, 0, .2)
+
     @staticmethod
     def to_rgba_full_opacity(color):
         return color//0x10000, (color//0x100) % 0x100, color % 0x100, 0xFF
@@ -62,10 +64,33 @@ class NonActionButton(Button):
         pass
 
 
-class BackButton(NonActionButton):
+class BarButton(NonActionButton):
     def __init__(self, c_coords):
         super().__init__(c_coords)
         self.width = 100
         self.height = 100
         self.coords = (self.center_coords[0] - self.width//2, self.center_coords[1] - self.height//2)
+
+
+class BackButton(BarButton):
+    def __init__(self, c_coords):
+        super().__init__(c_coords)
         self.img = pygame.image.load('./graphics/back_arrow.png')
+
+
+class PrevMoveButton(BarButton):
+    def __init__(self, c_coords):
+        super().__init__(c_coords)
+        self.img = pygame.image.load('./graphics/last_move_arrow.png')
+
+
+class SaveButton(BarButton):
+    def __init__(self, c_coords):
+        super().__init__(c_coords)
+        self.img = pygame.image.load('./graphics/save_arrow.png')
+
+
+class DeleteButton(BarButton):
+    def __init__(self, c_coords):
+        super().__init__(c_coords)
+        self.img = pygame.image.load('./graphics/delete_icon.png')

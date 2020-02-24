@@ -3,6 +3,43 @@ import sys
 from windows import *
 
 
+class PositionTree:
+    def __init__(self):
+        self.root = PositionNode()
+        self.iterator = self.root
+
+    def add_node(self, board):
+        new_node = PositionNode(self.iterator, board=board)
+        self.iterator.children[new_node.id] = new_node
+        self.iterator = new_node
+
+    def prev(self):
+        self.iterator = self.iterator.parent
+
+    def delete_node(self):
+        if self.iterator != self.root:
+            del_id = self.iterator.id
+            self.iterator = self.iterator.parent
+            del self.iterator.children[del_id]
+
+
+class PositionNode:
+    no_created = 0
+
+    def __init__(self, parent=None, board=None):
+        if board is not None:
+            self.board = board
+        else:
+            self.board = Board()
+        self.children = {}
+        self.parent = parent
+        self.id = self.no_created
+        PositionNode.no_created += 1
+
+    def __eq__(self, other):
+        return self.id == other.id
+
+
 class Application:
     def __init__(self):
         pygame.init()
@@ -124,16 +161,18 @@ class Application:
             self.FPSCLOCK.tick(self.window.fps)
 
     def learn(self):
+        tree = PositionTree()
         self.window = LearnWindow(self.DISPLAYSURF)
-        game = Board()
         selected = False
         selected_square = None
         color_turn = WH
         while True:     # main loop
+            game = tree.iterator.board
             mouse_clicked = False
             self.DISPLAYSURF.fill(self.window.bg_color)
             self.window.draw_chessboard()
-            self.window.draw_button()
+            self.window.top_bar.draw()
+            self.window.move_list.draw(tree.iterator.children)
             if selected:
                 self.window.draw_selected(selected_square)
             self.window.draw_pieces(game)
@@ -163,13 +202,28 @@ class Application:
                     elif game.piece_color(square_clicked) == color_turn:
                         selected_square = square_clicked
                     else:
+                        temp_game = deepcopy(game)
                         game.move(selected_square[0], selected_square[1], square_clicked[0], square_clicked[1], color_turn)
                         if not game.illegal:
                             color_turn = (color_turn+1) % 2
+                            tree.add_node(game)
+                        tree.iterator.parent.board = temp_game
+
                         selected = False
-                if self.window.button.click_check(mouse_coords):
+                if self.window.top_bar.back_button.click_check(mouse_coords):
                     self.window = self.menu_window
                     return
+
+                if self.window.top_bar.prev_move_button.click_check(mouse_coords):
+                    if tree.iterator.parent is not None:
+                        tree.prev()
+                        color_turn = (color_turn + 1) % 2
+
+                if self.window.top_bar.save_button.click_check(mouse_coords):
+                    pass
+
+                if self.window.top_bar.delete_button.click_check(mouse_coords):
+                    tree.delete_node()
 
             pygame.display.update()
             self.FPSCLOCK.tick(self.window.fps)

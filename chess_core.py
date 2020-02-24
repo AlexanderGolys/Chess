@@ -505,3 +505,21 @@ class Board:
         self.flip(0, 0)
 
 
+def test():
+    board = Board(1)
+    c = WH
+    while True:
+        board.print_board()
+
+        print("x1 = ")
+        x1 = int(input())
+        print("y1 = ")
+        y1 = int(input())
+        print("x2 = ")
+        x2 = int(input())
+        print("y2 = ")
+        y2 = int(input())
+
+        if board.move(x1, y1, x2, y2, c):
+            c = (c+1) % 2
+
